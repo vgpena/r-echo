@@ -1,5 +1,5 @@
 const botName = process.argv[2];
-const wordCount = process.argv[3];
+const sentenceCount = process.argv[3];
 const probabilities = require(`./data/${ botName }-clean.json`);
 
 const utterance = [];
@@ -31,12 +31,19 @@ function chooseWordAfter(word) {
   return chooseWordFrom(probabilities[word].nextWords);
 }
 
-for (let i = 0; i < wordCount; i++) {
-  utterance.push(i === 0 ? chooseFirstWord() : chooseWordAfter(utterance[i - 1]));
+let currSentenceCount = 0;
+while (currSentenceCount < sentenceCount) {
+  const newWord = utterance.length === 0 ? chooseFirstWord() : chooseWordAfter(utterance[utterance.length - 1]);
+  utterance.push(newWord);
+
+  const lastChar = newWord.charAt(newWord.length - 1);
+  if (lastChar === '.' || lastChar === '!' || lastChar === '?' ) {
+    currSentenceCount++;
+  }
 }
 
 let out = "";
-for (let i = 0; i < wordCount; i++) {
+for (let i = 0; i < utterance.length; i++) {
   if (i > 0) {
     out += " ";
   }

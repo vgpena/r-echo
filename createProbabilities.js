@@ -3,6 +3,7 @@ const ndjson = require('ndjson');
 
 const config = require('./config.json');
 const bots = config.bots;
+const bot = process.argv[2];
 
 function createProbabilities(data) {
   let probs = {};
@@ -57,6 +58,10 @@ function createBot(botName) {
   });
 }
 
-for (let i = 0; i < bots.length; i++) {
-  createBot(bots[i]);
+if (typeof bot !== 'undefined' && bot) {
+  createBot(bot);
+} else {
+  for (let i = 0; i < bots.length; i++) {
+    createBot(bots[i]);
+  }
 }
