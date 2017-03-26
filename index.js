@@ -1,8 +1,34 @@
-const botName = process.argv[2];
-const sentenceCount = process.argv[3];
-const probabilities = require(`./data/${ botName }-clean.json`);
+const app = require('http').createServer(createCallback);
+const io = require('socket.io')(app);
+const fs = require('fs-extra');
 
-const utterance = [];
+app.listen(8080);
+
+function createCallback(req, res) {
+  fs.readFile(__dirname + '/index.html', (err, data) => {
+    if (err) {
+      res.writeHead(500);
+      return res.end('ITSA BROKE');
+    }
+
+    res.writeHead(200);
+    res.end(data);
+  });
+}
+
+io.on('connection', (socket) => {
+  socket.emit('connection');
+
+  socket.on('submit', (data) => {
+    console.log(data);
+  });
+});
+
+// const botName = process.argv[2];
+// const sentenceCount = process.argv[3];
+// const probabilities = require(`./data/${ botName }-clean.json`);
+//
+// const utterance = [];
 
 function chooseFirstWord() {
   const wordsAndFrequencies = {};
@@ -31,22 +57,22 @@ function chooseWordAfter(word) {
   return chooseWordFrom(probabilities[word].nextWords);
 }
 
-let currSentenceCount = 0;
-while (currSentenceCount < sentenceCount) {
-  const newWord = utterance.length === 0 ? chooseFirstWord() : chooseWordAfter(utterance[utterance.length - 1]);
-  utterance.push(newWord);
-
-  const lastChar = newWord.charAt(newWord.length - 1);
-  if (lastChar === '.' || lastChar === '!' || lastChar === '?' ) {
-    currSentenceCount++;
-  }
-}
-
-let out = "";
-for (let i = 0; i < utterance.length; i++) {
-  if (i > 0) {
-    out += " ";
-  }
-  out += utterance[i];
-}
-console.log(out);
+// let currSentenceCount = 0;
+// while (currSentenceCount < sentenceCount) {
+//   const newWord = utterance.length === 0 ? chooseFirstWord() : chooseWordAfter(utterance[utterance.length - 1]);
+//   utterance.push(newWord);
+//
+//   const lastChar = newWord.charAt(newWord.length - 1);
+//   if (lastChar === '.' || lastChar === '!' || lastChar === '?' ) {
+//     currSentenceCount++;
+//   }
+// }
+//
+// let out = "";
+// for (let i = 0; i < utterance.length; i++) {
+//   if (i > 0) {
+//     out += " ";
+//   }
+//   out += utterance[i];
+// }
+// console.log(out);
