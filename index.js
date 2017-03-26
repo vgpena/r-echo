@@ -1,7 +1,7 @@
 const app = require('http').createServer(createCallback);
 const io = require('socket.io')(app);
 const fs = require('fs-extra');
-const bots = require('./config.json').bots;
+const bots = require(`${ __dirname }/config.json`).bots;
 
 let utterances = [];
 const utteranceCount = 20;
@@ -70,7 +70,7 @@ ${ out }
 });
 
 function startNewLogFile() {
-  currLogFile = `./logs/${ new Date() }.md`;
+  currLogFile = `${ __dirname }/logs/${ new Date() }.md`;
   fs.open(currLogFile, 'w');
 }
 
@@ -163,7 +163,7 @@ function cleanUtterance(utterance) {
 function makeSentences(sentenceCount, botIndex, callback) {
   console.log(botIndex);
 
-  const probabilities = require(`./data/${ bots[botIndex] }-clean.json`);
+  const probabilities = require(`${ __dirname }/data/${ bots[botIndex] }-clean.json`);
   const utterance = [];
 
   let currSentenceCount = 0;

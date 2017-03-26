@@ -1,7 +1,7 @@
 const fs = require('fs-extra');
 const ndjson = require('ndjson');
 
-const config = require('./config.json');
+const config = require(`${ __dirname }/config.json`);
 const bots = config.bots;
 const bot = process.argv[2];
 
@@ -40,7 +40,7 @@ function createProbabilities(data) {
 
 function createBot(botName) {
   const dataObj = [];
-  const stream = fs.createReadStream(`./data/${ botName }.json`).pipe(ndjson.parse());
+  const stream = fs.createReadStream(`${ __dirname }/data/${ botName }.json`).pipe(ndjson.parse());
   stream.on('data', (dataRaw) => {
     dataObj.push(dataRaw);
   });
@@ -50,7 +50,7 @@ function createBot(botName) {
       return row.word.localeCompare(row.nextword) !== 0;
     });
     const probabilities = createProbabilities(data);
-    fs.writeFile(`./data/${ botName }-clean.json`, JSON.stringify(probabilities), 'utf8', (err) => {
+    fs.writeFile(`${ __dirname }/data/${ botName }-clean.json`, JSON.stringify(probabilities), 'utf8', (err) => {
       if (err) {
         throw new Error(err);
       }
