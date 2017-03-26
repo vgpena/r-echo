@@ -71,7 +71,12 @@ ${ out }
 
 function startNewLogFile() {
   currLogFile = `${ __dirname }/logs/${ new Date() }.md`;
-  fs.open(currLogFile, 'w');
+  console.log(currLogFile);
+  fs.open(currLogFile, 'w', (err) => {
+    if (err) {
+      console.log(err);
+    }
+  });
 }
 
 function newConvo() {
