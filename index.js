@@ -7,6 +7,12 @@ let utterances = [];
 const utteranceCount = 20;
 let currUtterance = 0;
 let currentUtteranceOrderedWords = [];
+const mustMatchChars = [
+  ['(', ')'],
+  ['[', ']'],
+  ['{', '}'],
+  ['<', '>'],
+];
 
 app.listen(8080);
 
@@ -90,12 +96,42 @@ function scoreWords(utterance, corpus) {
   }
 }
 
+function stripOutUnmatchedCharacters(utterance, openChar, closeChar) {
+  let out = '';
+  let openCharSeen = 0;
+  utterance = utterance.split('');
+  for (let i = 0; i < utterance.length; i++) {
+    const nextChar = utterance[i];
+    if (nextChar.localeCompare(openChar) !== 0 && nextChar.localeCompare(closeChar) !== 0) {
+      out += utterance[i];
+    } else if (nextChar.localeCompare(openChar) === 0) {
+      out += utterance[i];
+      openCharSeen++;
+    } else if (nextChar.localeCompare(closeChar) === 0) {
+      if (openCharSeen > 0) {
+        out += utterance[i];
+        openCharSeen--;
+      }
+    }
+  }
+  while (openCharSeen > 0) {
+    const i = out.lastIndexOf(openChar);
+    out = out.slice(0, i) + out.slice(i + 1, out.length);
+    openCharSeen--;
+  }
+  return out;
+  // for (let i = 0; i < mustMatchChars.length; i++) {
+  //   const openChar = mustMatchChars[i][0];
+  //   const closeChar = mustMatchChars[i][1];
+  // }
+}
+
 function cleanUtterance(utterance) {
-  console.log(utterance);
-  const clean = utterance.replace(/\uFFFD/g, '');
-  console.log(clean);
-  console.log('----------')
-  return clean;
+  let cleaned = utterance.replace(/\uFFFD|'&nbsp;'|\n/g, '');
+  for (let i = 0; i < mustMatchChars.length; i++) {
+    cleaned = stripOutUnmatchedCharacters(cleaned, mustMatchChars[i][0], mustMatchChars[i][1]);
+  }
+  return cleaned;
 }
 
 function makeSentences(sentenceCount, botIndex, callback) {
