@@ -6,6 +6,7 @@ const bots = require('./config.json').bots;
 let utterances = [];
 const utteranceCount = 20;
 let currUtterance = 0;
+let currentUtteranceOrderedWords = [];
 
 app.listen(8080);
 
@@ -26,8 +27,6 @@ io.on('connection', (socket) => {
   socket.emit('connection');
 
   socket.on('submit', (data) => {
-    // console.log(data);
-
     makeSentences(undefined, data, (out) => {
       socket.emit('nextUtterance', out);
     });
@@ -52,6 +51,7 @@ io.on('connection', (socket) => {
 // pick two random bots and generate a bunch of utterances for them.
 function generateConvo() {
   utterances = [];
+  currentUtteranceOrderedWords = [];
   currUtterance = 0;
   const bot1 = bots[Math.floor(Math.random() * bots.length)];
   const bot2 = bots[Math.floor(Math.random() * bots.length)];
@@ -68,6 +68,26 @@ function generateConvo() {
   }
 
   console.log(utterances);
+}
+
+function scoreWords(utterance, corpus) {
+  const wordsAndFrequencies = [];
+  currentUtteranceOrderedWords = [];
+  const minNextWords = Object.keys(corpus).length * .0005;
+  for (let i = 0; i < utterance.length; i++) {
+    if (Object.keys(corpus[utterance[i]].nextWords).length > minNextWords && corpus[utterance[i]].totalFrequency > minNextWords * 2) {
+      wordsAndFrequencies.push({
+        word: utterance[i],
+        frequency: corpus[utterance[i]].totalFrequency,
+      });
+    }
+  }
+  wordsAndFrequencies.sort((a, b) => {
+    return a.frequency - b.frequency;
+  });
+  for (let i = 0; i < wordsAndFrequencies.length; i++) {
+    currentUtteranceOrderedWords.push(wordsAndFrequencies[i].word);
+  }
 }
 
 function makeSentences(sentenceCount, botIndex, callback) {
@@ -98,6 +118,8 @@ function makeSentences(sentenceCount, botIndex, callback) {
     out += utterance[i];
   }
 
+  scoreWords(utterance, probabilities);
+
   if (callback) {
     callback(out);
   } else {
@@ -108,6 +130,18 @@ function makeSentences(sentenceCount, botIndex, callback) {
 function chooseFirstWord(probabilities) {
   const wordsAndFrequencies = {};
   const words = Object.keys(probabilities);
+
+  if (currentUtteranceOrderedWords.length > 0) {
+    for (let i = 0; i < currentUtteranceOrderedWords.length; i++) {
+      if (words.indexOf(currentUtteranceOrderedWords[i]) >= 0) {
+        if (Math.random() > 0.5) {
+          console.log(currentUtteranceOrderedWords[i]);
+          return currentUtteranceOrderedWords[i];
+        }
+      }
+    }
+  }
+
   for (let i = 0; i < words.length; i++) {
     wordsAndFrequencies[words[i]] = probabilities[words[i]].totalFrequency;
   }
