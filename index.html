@@ -16,8 +16,8 @@
     <h1 id="title">ITSA ME</h1>
     <form id="form" action="POST">
       <div>
-        <label for="sentenceCount">sentences</label>
-        <input type="number" id="sentenceCount" value=2 />
+        <!-- <label for="sentenceCount">sentences</label>
+        <input type="number" id="sentenceCount" value=2 /> -->
       </div>
       <div>
         <label for="bot">bot</label>
@@ -37,22 +37,46 @@
       </div>
     </form>
 
+    <hr>
+
+    <!--<button id="newConvo">new convo</button>
+    <button id="nextUtterance">next utterance</button>-->
+
+    <div id="utterances">
+    </div>
+
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
       const socket = io('http://localhost:8080');
 
       document.getElementById('form').onsubmit = (data) => {
-        const sentenceCount = document.getElementById('sentenceCount').value;
+        // const sentenceCount = document.getElementById('sentenceCount').value;
         const bot = document.getElementById('bot').value;
         socket.emit('submit', {
-          sentences: sentenceCount,
+          // sentences: sentenceCount,
           bot: bot,
         });
-        return true;
+        return false;
       };
+
+      // document.getElementById('newConvo').onclick = () => {
+      //   socket.emit('newConvo');
+      //   document.getElementById('utterances').innerHTML = '';
+      // }
+      //
+      // document.getElementById('nextUtterance').onclick = () => {
+      //   socket.emit('nextUtterance');
+      // }
 
       socket.on('connection', () => {
         console.log('connected');
+      });
+
+      socket.on('nextUtterance', (data) => {
+        const elt = document.createElement('div');
+        elt.innerHTML = data;
+        document.getElementById('utterances').appendChild(elt);
       });
     </script>
   </body>

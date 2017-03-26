@@ -1,6 +1,11 @@
 const app = require('http').createServer(createCallback);
 const io = require('socket.io')(app);
 const fs = require('fs-extra');
+const bots = require('./config.json').bots;
+
+let utterances = [];
+const utteranceCount = 20;
+let currUtterance = 0;
 
 app.listen(8080);
 
@@ -23,16 +28,49 @@ io.on('connection', (socket) => {
     console.log(data);
 
     makeSentences(data.sentences, data.bot, (out) => {
-      console.log(out);
+      socket.emit('nextUtterance', out);
     });
   });
+
+  socket.on('newConvo', () => {
+    generateConvo();
+  });
+
+  socket.on('nextUtterance', () => {
+    socket.emit('nextUtterance', utterances[currUtterance]);
+    currUtterance++;
+  });
 });
+
+// pick two random bots and generate a bunch of utterances for them.
+function generateConvo() {
+  utterances = [];
+  currUtterance = 0;
+  const bot1 = bots[Math.floor(Math.random() * bots.length)];
+  const bot2 = bots[Math.floor(Math.random() * bots.length)];
+
+  for (let i = 0; i < utteranceCount; i++) {
+    utterances.push({
+      name: bot1,
+      text: makeSentences(2, bot1)
+    });
+    utterances.push({
+      name: bot2,
+      text: makeSentences(2, bot2)
+    });
+  }
+
+  console.log(utterances);
+}
 
 function makeSentences(sentenceCount, botName, callback) {
   const probabilities = require(`./data/${ botName }-clean.json`);
   const utterance = [];
 
   let currSentenceCount = 0;
+  if (typeof sentenceCount === 'undefined') {
+    sentenceCount = Math.ceil(Math.random() * 3);
+  }
   while (currSentenceCount < sentenceCount) {
     const newWord = utterance.length === 0 ? chooseFirstWord(probabilities) : chooseWordAfter(utterance[utterance.length - 1], probabilities);
     utterance.push(newWord);
@@ -51,14 +89,12 @@ function makeSentences(sentenceCount, botName, callback) {
     out += utterance[i];
   }
 
-  callback(out);
+  if (callback) {
+    callback(out);
+  } else {
+    return out;
+  }
 }
-
-// const botName = process.argv[2];
-// const sentenceCount = process.argv[3];
-// const probabilities = require(`./data/${ botName }-clean.json`);
-//
-// const utterance = [];
 
 function chooseFirstWord(probabilities) {
   const wordsAndFrequencies = {};
