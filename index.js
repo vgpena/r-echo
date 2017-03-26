@@ -69,8 +69,28 @@ ${ out }
   });
 });
 
+function dateString() {
+  const today = new Date();
+  const yyyy = today.getFullYear().toString();
+  const mm = (today.getMonth() + 1).toString();
+  const dd = today.getDate().toString();
+  const string = `${ yyyy }-${ (mm[1] ? mm : "0"+mm[0]) }-${ (dd[1] ? dd : "0"+dd[0])}`;
+
+  return string;
+}
+
+function timeString() {
+  const today = new Date();
+  const hh = today.getHours().toString();
+  const mm = today.getMinutes().toString();
+  const ss = today.getSeconds().toString();
+  const string = `${ (hh[1] ? hh:"0" + hh[0]) }-${(mm[1] ? mm:"0" + mm[0]) }-${(ss[1] ? ss:"0" + ss[0])}`;
+
+  return string;
+}
+
 function startNewLogFile() {
-  currLogFile = `${ __dirname }/logs/${ new Date() }.md`;
+  currLogFile = `${ __dirname }/logs/${ dateString() }_${ timeString() }.md`;
   console.log(currLogFile);
   fs.open(currLogFile, 'w', (err) => {
     if (err) {
