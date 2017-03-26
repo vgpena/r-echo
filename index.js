@@ -7,6 +7,7 @@ let utterances = [];
 const utteranceCount = 20;
 let currUtterance = 0;
 let currentUtteranceOrderedWords = [];
+let currLogFile = '';
 const mustMatchChars = [
   ['(', ')'],
   ['[', ']'],
@@ -15,6 +16,7 @@ const mustMatchChars = [
 ];
 
 app.listen(8080);
+startNewLogFile();
 
 function createCallback(req, res) {
   fs.readFile(__dirname + '/index.html', (err, data) => {
@@ -34,25 +36,49 @@ io.on('connection', (socket) => {
 
   socket.on('submit', (data) => {
     makeSentences(undefined, data, (out) => {
+      console.log(out);
+      fs.appendFile(currLogFile, `
+## ${ bots[data] }
+
+${ out }
+
+`, 'utf8');
+
       socket.emit('nextUtterance', out);
     });
   });
 
   socket.on('newConvo', () => {
-    generateConvo();
+    newConvo();
   });
 
   socket.on('nextUtterance', (data) => {
     makeSentences(undefined, data, (out) => {
       console.log(out);
+      fs.appendFile(currLogFile, `
+## ${ bots[data] }
+
+${ out }
+
+`, 'utf8');
+
       socket.emit('nextUtterance', {
         text: out
       });
     });
-    // socket.emit('nextUtterance', utterances[currUtterance]);
-    // currUtterance++;
   });
 });
+
+function startNewLogFile() {
+  currLogFile = `./logs/${ new Date() }.md`;
+  fs.open(currLogFile, 'w');
+}
+
+function newConvo() {
+  utterances = [];
+  currentUtteranceOrderedWords = [];
+  fs.appendFile(currLogFile, '\n\n----------------\n\n', 'utf8');
+}
 
 // pick two random bots and generate a bunch of utterances for them.
 function generateConvo() {
