@@ -54,10 +54,7 @@
       document.getElementById('form').onsubmit = (data) => {
         // const sentenceCount = document.getElementById('sentenceCount').value;
         const bot = document.getElementById('bot').value;
-        socket.emit('submit', {
-          // sentences: sentenceCount,
-          bot: bot,
-        });
+        socket.emit('submit', bot);
         return false;
       };
 

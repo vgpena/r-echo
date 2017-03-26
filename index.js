@@ -22,12 +22,13 @@ function createCallback(req, res) {
 }
 
 io.on('connection', (socket) => {
+  console.log('connected');
   socket.emit('connection');
 
   socket.on('submit', (data) => {
-    console.log(data);
+    // console.log(data);
 
-    makeSentences(data.sentences, data.bot, (out) => {
+    makeSentences(undefined, data, (out) => {
       socket.emit('nextUtterance', out);
     });
   });
@@ -36,9 +37,15 @@ io.on('connection', (socket) => {
     generateConvo();
   });
 
-  socket.on('nextUtterance', () => {
-    socket.emit('nextUtterance', utterances[currUtterance]);
-    currUtterance++;
+  socket.on('nextUtterance', (data) => {
+    makeSentences(undefined, data, (out) => {
+      console.log(out);
+      socket.emit('nextUtterance', {
+        text: out
+      });
+    });
+    // socket.emit('nextUtterance', utterances[currUtterance]);
+    // currUtterance++;
   });
 });
 
@@ -64,6 +71,7 @@ function generateConvo() {
 }
 
 function makeSentences(sentenceCount, botIndex, callback) {
+  console.log(botIndex);
 
   const probabilities = require(`./data/${ bots[botIndex] }-clean.json`);
   const utterance = [];
