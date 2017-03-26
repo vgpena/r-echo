@@ -183,7 +183,7 @@ function stripOutUnmatchedQuotationMarks(utterance) {
       lastIndex = i;
     }
   }
-  
+
   if (count % 2 === 1) {
     return utterance.slice(0, lastIndex) + utterance.slice(lastIndex + 1, utterance.length);
   }
@@ -192,7 +192,7 @@ function stripOutUnmatchedQuotationMarks(utterance) {
 }
 
 function cleanUtterance(utterance) {
-  let cleaned = utterance.replace(/\uFFFD|&nbsp;|\n|\t/g, '').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/' :'/g, ':');
+  let cleaned = utterance.replace(/\uFFFD|&nbsp;|\n|\t/g, '').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/' :'/g, ':').replace(/&amp;/g, '&');
   cleaned = stripOutUnmatchedQuotationMarks(cleaned);
   for (let i = 0; i < mustMatchChars.length; i++) {
     cleaned = stripOutUnmatchedCharacters(cleaned, mustMatchChars[i][0], mustMatchChars[i][1]);
