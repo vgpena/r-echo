@@ -135,7 +135,6 @@ function chooseFirstWord(probabilities) {
     for (let i = 0; i < currentUtteranceOrderedWords.length; i++) {
       if (words.indexOf(currentUtteranceOrderedWords[i]) >= 0) {
         if (Math.random() > 0.5) {
-          console.log(currentUtteranceOrderedWords[i]);
           return currentUtteranceOrderedWords[i];
         }
       }
