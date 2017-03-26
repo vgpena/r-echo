@@ -171,14 +171,29 @@ function stripOutUnmatchedCharacters(utterance, openChar, closeChar) {
     openCharSeen--;
   }
   return out;
-  // for (let i = 0; i < mustMatchChars.length; i++) {
-  //   const openChar = mustMatchChars[i][0];
-  //   const closeChar = mustMatchChars[i][1];
-  // }
+}
+
+function stripOutUnmatchedQuotationMarks(utterance) {
+  const arr = utterance.split('');
+  let count = 0;
+  let lastIndex = 0;
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i].localeCompare('"') === 0) {
+      count++;
+      lastIndex = i;
+    }
+  }
+  
+  if (count % 2 === 1) {
+    return utterance.slice(0, lastIndex) + utterance.slice(lastIndex + 1, utterance.length);
+  }
+
+  return utterance;
 }
 
 function cleanUtterance(utterance) {
-  let cleaned = utterance.replace(/\uFFFD|'&nbsp;'|\n/g, '');
+  let cleaned = utterance.replace(/\uFFFD|&nbsp;|\n|\t/g, '').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/' :'/g, ':');
+  cleaned = stripOutUnmatchedQuotationMarks(cleaned);
   for (let i = 0; i < mustMatchChars.length; i++) {
     cleaned = stripOutUnmatchedCharacters(cleaned, mustMatchChars[i][0], mustMatchChars[i][1]);
   }
