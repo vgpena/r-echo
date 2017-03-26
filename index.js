@@ -63,8 +63,9 @@ function generateConvo() {
   console.log(utterances);
 }
 
-function makeSentences(sentenceCount, botName, callback) {
-  const probabilities = require(`./data/${ botName }-clean.json`);
+function makeSentences(sentenceCount, botIndex, callback) {
+
+  const probabilities = require(`./data/${ bots[botIndex] }-clean.json`);
   const utterance = [];
 
   let currSentenceCount = 0;
