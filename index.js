@@ -90,6 +90,14 @@ function scoreWords(utterance, corpus) {
   }
 }
 
+function cleanUtterance(utterance) {
+  console.log(utterance);
+  const clean = utterance.replace(/\uFFFD/g, '');
+  console.log(clean);
+  console.log('----------')
+  return clean;
+}
+
 function makeSentences(sentenceCount, botIndex, callback) {
   console.log(botIndex);
 
@@ -121,9 +129,9 @@ function makeSentences(sentenceCount, botIndex, callback) {
   scoreWords(utterance, probabilities);
 
   if (callback) {
-    callback(out);
+    callback(cleanUtterance(out));
   } else {
-    return out;
+    return cleanUtterance(out);
   }
 }
 
